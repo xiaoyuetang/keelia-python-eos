@@ -14,6 +14,7 @@ What things you need to install the software and how to install them
 dlib
 cv2
 numpy
+image-cleaner
 modified-eos
 ```
 
@@ -27,6 +28,8 @@ $ cd eos && python setup.py install
 ## Usage
 
 **$ python generate_faces.py** to generate cropped faces with size 240
+
+**$ image-cleaner faces_result** to remove duplicated images in faces_result
 
 **$ python generate_pts.py** to generate landmarks for each cropped face
 
