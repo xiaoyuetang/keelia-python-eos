@@ -34,7 +34,7 @@ def train_epoch(model, device, train_loader, optimizer, criterion, epoch):
     accuracy = correct / dataset_size
     training_loss /= dataset_size
 
-    print('Training set: Average loss: {:.4f}, Accuracy: {}/{} ({:.0f}%)'.format(training_loss, correct, data_size,
+    print('Training set: Average loss: {:.4f}, Accuracy: {}/{} ({:.0f}%)'.format(training_loss, correct, dataset_size,
         100. * accuracy))
 
     return accuracy, training_loss
@@ -43,7 +43,7 @@ def evaluate(model, device, val_loader, criterion):
     model.eval()
     val_loss = 0
     correct = 0
-    data_size = len(val_loader)
+    dataset_size = len(val_loader)
 
     with torch.no_grad():
         for batch in tqdm(val_loader):
@@ -55,10 +55,10 @@ def evaluate(model, device, val_loader, criterion):
             correct += output.eq(target.view_as(output)).sum().item()
         accuracy = correct / data_size
 
-    val_loss /= data_size
+    val_loss /= dataset_size
     accuracy = correct / dataset_size
 
-    print('Test set: Average loss: {:.4f}, Accuracy: {}/{} ({:.0f}%)'.format(val_loss, correct, data_size,
+    print('Test set: Average loss: {:.4f}, Accuracy: {}/{} ({:.0f}%)'.format(val_loss, correct, dataset_size,
         100. * accuracy))
 
     return accuracy, val_loss
