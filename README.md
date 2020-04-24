@@ -44,3 +44,4 @@ $ cd eos && python setup.py install
 
 ## Build With
 * [eos](https://github.com/patrikhuber/eos) - A lightweight 3D Morphable Face Model fitting library in modern C++14
+* [Pytorch](https://pytorch.org/) - An open source machine learning library based on the Torch library
