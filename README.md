@@ -39,5 +39,8 @@ $ cd eos && python setup.py install
 {"tx": tx, "ty": ty, "scale": scale, "yaw": yaw, "roll": roll, "pitch": pitch, "pca_shape_coefficients": pca_shape_coefficients, "expression_coefficients": expression_coefficients}
 ```
 
+**$ python train.py** to train fine-tuned resnet18 to generate ground truth
+
+
 ## Build With
 * [eos](https://github.com/patrikhuber/eos) - A lightweight 3D Morphable Face Model fitting library in modern C++14
