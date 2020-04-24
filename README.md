@@ -27,6 +27,8 @@ $ cd eos && python setup.py install
 
 ## Usage
 
+PLEASE CHANGE FILE PATH IN THE .PY FILES BEFORE YOU PROCEED
+
 **$ python generate_faces.py** to generate cropped faces with size 240
 
 **$ image-cleaner faces_result** to remove duplicated images in faces_result
