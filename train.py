@@ -16,7 +16,8 @@ def train_epoch(model, device, train_loader, optimizer, criterion, epoch):
     model.train()
     training_loss = 0
     correct = 0
-    dataset_size = len(train_loader)
+    dataset_size = len(train_loader)*128
+
     for batch in tqdm(train_loader):
         data, target = batch['image'], batch['ground_truth']
         data, target = data.to(device), target.to(device)
@@ -26,7 +27,7 @@ def train_epoch(model, device, train_loader, optimizer, criterion, epoch):
         loss = criterion(output, target)
         training_loss += loss.item()
 
-        correct += output.eq(target.view_as(output)).sum().item()
+        correct += output.isclose(target.view_as(output)).sum().item()
 
         loss.backward()
         optimizer.step()
@@ -43,7 +44,7 @@ def evaluate(model, device, val_loader, criterion):
     model.eval()
     val_loss = 0
     correct = 0
-    dataset_size = len(val_loader)
+    dataset_size = len(val_loader)*128
 
     with torch.no_grad():
         for batch in tqdm(val_loader):
@@ -52,8 +53,8 @@ def evaluate(model, device, val_loader, criterion):
             output = model(data).to(device)
             val_loss += criterion(output, target).item()  # sum up batch loss
 
-            correct += output.eq(target.view_as(output)).sum().item()
-        accuracy = correct / data_size
+            correct += output.isclose(target.view_as(output)).sum().item()
+        accuracy = correct / dataset_size
 
     val_loss /= dataset_size
     accuracy = correct / dataset_size
@@ -97,6 +98,8 @@ def train_model(train_loader, val_loader, test_loader, model, optimizer, criteri
         test_accuracy_array.append(test_accuracy)
         val_accuracy_array.append(val_accuracy)
 
+        bestweights = None
+
         if test_accuracy > best_test_accuracy:
             bestweights = model.state_dict()
             best_test_accuracy = test_accuracy
@@ -125,6 +128,12 @@ def main():
                                     root_dir='ytb/test/',
                                     transform=Rescale((64, 64)))
 
+    # torch.save(train_dataset, "train_dataset.pt")
+    # torch.save(test_dataset, "test_dataset.pt")
+
+    # train_dataset = torch.load('train_dataset.pt', map_location=lambda storage, loc: storage)
+    # test_dataset = torch.load('test_dataset.pt', map_location=lambda storage, loc: storage)
+
     train_loader = DataLoader(train_dataset, batch_size=128, shuffle=True)
     test_loader = DataLoader(test_dataset, batch_size=128, shuffle=True)
 
@@ -147,6 +156,8 @@ def main():
                                                                  criterion=criterion,
                                                                  num_epochs=5,
                                                                  device=device)
+    torch.save(bestweights, "bestweights.pt")
+    print("Best epoch is: ", best_epoch)
 
 if __name__ == "__main__":
     main()
