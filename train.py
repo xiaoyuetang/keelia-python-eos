@@ -16,7 +16,7 @@ def train_epoch(model, device, train_loader, optimizer, criterion, epoch):
     model.train()
     training_loss = 0
     correct = 0
-    dataset_size = len(train_loader)*128
+    dataset_size = len(train_loader)*BATCH_SIZE
 
     for batch in tqdm(train_loader):
         data, target = batch['image'], batch['ground_truth']
@@ -44,7 +44,7 @@ def evaluate(model, device, val_loader, criterion):
     model.eval()
     val_loss = 0
     correct = 0
-    dataset_size = len(val_loader)*128
+    dataset_size = len(val_loader)*BATCH_SIZE
 
     with torch.no_grad():
         for batch in tqdm(val_loader):
@@ -67,6 +67,7 @@ def evaluate(model, device, val_loader, criterion):
 def train_model(train_loader, val_loader, test_loader, model, optimizer, criterion, num_epochs, device):
 
     best_test_accuracy = 0
+    best_test_loss= 10
     best_epoch =-1
 
     # array for plotting
@@ -100,7 +101,13 @@ def train_model(train_loader, val_loader, test_loader, model, optimizer, criteri
 
         bestweights = None
 
-        if test_accuracy > best_test_accuracy:
+        # if test_accuracy > best_test_accuracy:
+        #     bestweights = model.state_dict()
+        #     best_test_accuracy = test_accuracy
+        #     best_epoch = epoch
+        #     print('current best', test_accuracy, 'at epoch ', best_epoch)
+
+        if test_loss < best_test_accuracy:
             bestweights = model.state_dict()
             best_test_accuracy = test_accuracy
             best_epoch = epoch
@@ -117,6 +124,7 @@ def train_model(train_loader, val_loader, test_loader, model, optimizer, criteri
     # plt.plot(val_accuracy_array, label='validation accuracy')
     # plt.legend(loc='upper left')
     # plt.show()
+
     return best_epoch, best_test_accuracy, bestweights
 
 def main():
@@ -134,8 +142,8 @@ def main():
     # train_dataset = torch.load('train_dataset.pt', map_location=lambda storage, loc: storage)
     # test_dataset = torch.load('test_dataset.pt', map_location=lambda storage, loc: storage)
 
-    train_loader = DataLoader(train_dataset, batch_size=128, shuffle=True)
-    test_loader = DataLoader(test_dataset, batch_size=128, shuffle=True)
+    train_loader = DataLoader(train_dataset, batch_size=BATCH_SIZE, shuffle=True)
+    test_loader = DataLoader(test_dataset, batch_size=BATCH_SIZE, shuffle=True)
 
     model = Net()
 
@@ -145,8 +153,10 @@ def main():
     else:
         device = torch.device("cpu")
 
-    criterion = nn.SmoothL1Loss()
-    optimizer = optim.Adam(model.parameters(), lr = 0.001)
+    # criterion = nn.SmoothL1Loss()
+    criterion = nn.MSELoss()
+
+    optimizer = optim.Adam(model.parameters(), lr = 0.01)
 
     best_epoch, best_perform_accuracy, bestweights = train_model(train_loader=train_loader,
                                                                  val_loader=test_loader,
@@ -160,4 +170,5 @@ def main():
     print("Best epoch is: ", best_epoch)
 
 if __name__ == "__main__":
+    BATCH_SIZE = 64
     main()
