@@ -12,6 +12,8 @@ from model import Net
 
 from tqdm import tqdm
 
+from random import randint
+
 def train_epoch(model, device, train_loader, optimizer, criterion, epoch):
     model.train()
     training_loss = 0
@@ -68,7 +70,7 @@ def train_model(train_loader, val_loader, test_loader, model, optimizer, criteri
 
     best_test_accuracy = 0
     best_test_loss= 10
-    best_epoch =-1
+    best_epoch = -1
 
     # array for plotting
     training_loss_array = []
@@ -99,7 +101,7 @@ def train_model(train_loader, val_loader, test_loader, model, optimizer, criteri
         test_accuracy_array.append(test_accuracy)
         val_accuracy_array.append(val_accuracy)
 
-        bestweights = None
+        # bestweights = None
 
         # if test_accuracy > best_test_accuracy:
         #     bestweights = model.state_dict()
@@ -107,11 +109,11 @@ def train_model(train_loader, val_loader, test_loader, model, optimizer, criteri
         #     best_epoch = epoch
         #     print('current best', test_accuracy, 'at epoch ', best_epoch)
 
-        if test_loss < best_test_accuracy:
+        if test_loss < best_test_loss:
             bestweights = model.state_dict()
-            best_test_accuracy = test_accuracy
+            best_test_loss = test_loss
             best_epoch = epoch
-            print('current best', test_accuracy, 'at epoch ', best_epoch)
+            print('current best loss', test_loss, 'at epoch ', best_epoch)
 
     # plt.plot(training_loss_array, label='training loss')
     # plt.plot(test_loss_array, label='test loss')
@@ -126,6 +128,18 @@ def train_model(train_loader, val_loader, test_loader, model, optimizer, criteri
     # plt.show()
 
     return best_epoch, best_test_accuracy, bestweights
+
+
+def draw_mesh(model, dataset, idx):
+    data = dataset[idx]
+    img_name, img = data['image_name'], data['image']
+
+    bestweights = torch.load("bestweights.pt")
+    model.load_state_dict(bestweights)
+
+    output = model(img)
+    print(img_name, "\n", output)
+
 
 def main():
     train_dataset = KeypointsDataset(csv_file='ytb/training_frames_keypoints.csv',
@@ -156,7 +170,7 @@ def main():
     # criterion = nn.SmoothL1Loss()
     criterion = nn.MSELoss()
 
-    optimizer = optim.Adam(model.parameters(), lr = 0.01)
+    optimizer = optim.Adam(model.parameters(), lr = 0.005)
 
     best_epoch, best_perform_accuracy, bestweights = train_model(train_loader=train_loader,
                                                                  val_loader=test_loader,
@@ -168,6 +182,9 @@ def main():
                                                                  device=device)
     torch.save(bestweights, "bestweights.pt")
     print("Best epoch is: ", best_epoch)
+
+    idx = randint(0, len(train_dataset)-1)
+    draw_mesh(model, train_dataset, idx)
 
 if __name__ == "__main__":
     BATCH_SIZE = 64
