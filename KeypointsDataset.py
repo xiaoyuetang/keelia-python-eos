@@ -44,7 +44,9 @@ class KeypointsDataset(Dataset):
 
         ground_truth = generate_trainable_gt(key_pts)
 
-        sample = {'image_name': image_name, 'image': image, 'keypoints': key_pts, 'ground_truth': ground_truth}
+        image_data = image
+
+        sample = {'image_data': image_data, 'image': image, 'keypoints': key_pts, 'ground_truth': ground_truth}
 
         if self.transform:
             sample = self.transform(sample)
@@ -66,7 +68,7 @@ class Rescale(object):
         self.output_size = output_size
 
     def __call__(self, sample):
-        image_name, image, key_pts, ground_truth = sample['image_name'], sample['image'], sample['keypoints'], sample['ground_truth']
+        image_data, image, key_pts, ground_truth = sample['image_data'], sample['image'], sample['keypoints'], sample['ground_truth']
 
         h, w = image.shape[:2]
         if isinstance(self.output_size, int):
@@ -87,7 +89,9 @@ class Rescale(object):
         # re-predict ground_truth
         ground_truth = generate_trainable_gt(key_pts)
 
-        return {'image_name': image_name, 'image': torch.from_numpy(img).float().view(3, 64, 64), 'keypoints': key_pts, 'ground_truth': torch.from_numpy(ground_truth).float()}
+        image_data = img
+
+        return {'image_data': image_data, 'image': torch.from_numpy(img).float().view(3, 64, 64), 'keypoints': key_pts, 'ground_truth': torch.from_numpy(ground_truth).float()}
 
 
 def generate_trainable_gt(key_pts):
@@ -102,11 +106,11 @@ def generate_trainable_gt(key_pts):
     return np.array(trainable_gt)
 
 
-face_dataset = KeypointsDataset(csv_file='ytb/training_frames_keypoints.csv',
-                                root_dir='ytb/training/',
-                                transform=Rescale((64, 64)))
+# face_dataset = KeypointsDataset(csv_file='ytb/training_frames_keypoints.csv',
+#                                 root_dir='ytb/training/',
+#                                 transform=Rescale((64, 64)))
 
 
-print("Number of data: ", len(face_dataset))
-print("Ground Truth Size: ", face_dataset[1]['ground_truth'].shape)
-print("Image Size: ", face_dataset[1]['image'].shape)
+# print("Number of data: ", len(face_dataset))
+# print("Ground Truth Size: ", face_dataset[1]['ground_truth'].shape)
+# print("Image Size: ", face_dataset[1]['image'].shape)

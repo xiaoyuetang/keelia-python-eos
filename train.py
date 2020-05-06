@@ -14,6 +14,8 @@ from tqdm import tqdm
 
 from random import randint
 
+from cv2 import cv2 as cv2
+
 def train_epoch(model, device, train_loader, optimizer, criterion, epoch):
     model.train()
     training_loss = 0
@@ -132,13 +134,15 @@ def train_model(train_loader, val_loader, test_loader, model, optimizer, criteri
 
 def draw_mesh(model, dataset, idx):
     data = dataset[idx]
-    img_name, img = data['image_name'], data['image']
+    img_data, img = data['image_data'], data['image']
 
-    bestweights = torch.load("bestweights.pt")
+    bestweights = torch.load("bestweights.pt", map_location=lambda storage, loc: storage)
     model.load_state_dict(bestweights)
 
-    output = model(img)
-    print(img_name, "\n", output)
+    output = model(img.view(1, 3, 64, 64))
+
+    cv2.imwrite(str(idx) + '.png', img_data)
+    print(idx, "\n", output)
 
 
 def main():
@@ -172,16 +176,16 @@ def main():
 
     optimizer = optim.Adam(model.parameters(), lr = 0.005)
 
-    best_epoch, best_perform_accuracy, bestweights = train_model(train_loader=train_loader,
-                                                                 val_loader=test_loader,
-                                                                 test_loader=test_loader,
-                                                                 model=model,
-                                                                 optimizer=optimizer,
-                                                                 criterion=criterion,
-                                                                 num_epochs=5,
-                                                                 device=device)
-    torch.save(bestweights, "bestweights.pt")
-    print("Best epoch is: ", best_epoch)
+    # best_epoch, best_perform_accuracy, bestweights = train_model(train_loader=train_loader,
+    #                                                              val_loader=test_loader,
+    #                                                              test_loader=test_loader,
+    #                                                              model=model,
+    #                                                              optimizer=optimizer,
+    #                                                              criterion=criterion,
+    #                                                              num_epochs=5,
+    #                                                              device=device)
+    # torch.save(bestweights, "bestweights.pt")
+    # print("Best epoch is: ", best_epoch)
 
     idx = randint(0, len(train_dataset)-1)
     draw_mesh(model, train_dataset, idx)
