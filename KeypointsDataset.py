@@ -106,11 +106,12 @@ def generate_trainable_gt(key_pts):
     return np.array(trainable_gt)
 
 
-# face_dataset = KeypointsDataset(csv_file='ytb/training_frames_keypoints.csv',
-#                                 root_dir='ytb/training/',
-#                                 transform=Rescale((64, 64)))
+face_dataset = KeypointsDataset(csv_file='ytb/training_frames_keypoints.csv',
+                                root_dir='ytb/training/',
+                                transform=Rescale((64, 64)))
 
 
 # print("Number of data: ", len(face_dataset))
 # print("Ground Truth Size: ", face_dataset[1]['ground_truth'].shape)
 # print("Image Size: ", face_dataset[1]['image'].shape)
+# print("Ground Truth 949: ", face_dataset[949]['ground_truth'])

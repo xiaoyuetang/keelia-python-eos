@@ -136,13 +136,14 @@ def draw_mesh(model, dataset, idx):
     data = dataset[idx]
     img_data, img = data['image_data'], data['image']
 
-    bestweights = torch.load("bestweights.pt", map_location=lambda storage, loc: storage)
+    # bestweights = torch.load("smoothl1_bestweights.pt", map_location=lambda storage, loc: storage)
+    bestweights = torch.load("smoothl1_bestweights.pt", map_location=lambda storage, loc: storage)
     model.load_state_dict(bestweights)
 
     output = model(img.view(1, 3, 64, 64))
 
     cv2.imwrite(str(idx) + '.png', img_data)
-    print(idx, "\n", output)
+    print("Generating points for id {}..".format(idx), "\n", output)
 
 
 def main():
@@ -150,9 +151,9 @@ def main():
                                     root_dir='ytb/training/',
                                     transform=Rescale((64, 64)))
 
-    test_dataset = KeypointsDataset(csv_file='ytb/test_frames_keypoints.csv',
-                                    root_dir='ytb/test/',
-                                    transform=Rescale((64, 64)))
+    # test_dataset = KeypointsDataset(csv_file='ytb/test_frames_keypoints.csv',
+    #                                 root_dir='ytb/test/',
+    #                                 transform=Rescale((64, 64)))
 
     # torch.save(train_dataset, "train_dataset.pt")
     # torch.save(test_dataset, "test_dataset.pt")
@@ -160,36 +161,36 @@ def main():
     # train_dataset = torch.load('train_dataset.pt', map_location=lambda storage, loc: storage)
     # test_dataset = torch.load('test_dataset.pt', map_location=lambda storage, loc: storage)
 
-    train_loader = DataLoader(train_dataset, batch_size=BATCH_SIZE, shuffle=True)
-    test_loader = DataLoader(test_dataset, batch_size=BATCH_SIZE, shuffle=True)
+    # train_loader = DataLoader(train_dataset, batch_size=BATCH_SIZE, shuffle=True)
+    # test_loader = DataLoader(test_dataset, batch_size=BATCH_SIZE, shuffle=True)
 
     model = Net()
 
-    use_gpu = torch.cuda.is_available()
-    if use_gpu:
-        device = torch.device("cuda")
-    else:
-        device = torch.device("cpu")
-
+    # use_gpu = torch.cuda.is_available()
+    # if use_gpu:
+    #     device = torch.device("cuda")
+    # else:
+    #     device = torch.device("cpu")
+    #
     # criterion = nn.SmoothL1Loss()
-    criterion = nn.MSELoss()
+    # criterion = nn.MSELoss()
 
-    optimizer = optim.Adam(model.parameters(), lr = 0.005)
-
+    # optimizer = optim.Adam(model.parameters(), lr = 0.001)
+    #
     # best_epoch, best_perform_accuracy, bestweights = train_model(train_loader=train_loader,
     #                                                              val_loader=test_loader,
     #                                                              test_loader=test_loader,
     #                                                              model=model,
     #                                                              optimizer=optimizer,
     #                                                              criterion=criterion,
-    #                                                              num_epochs=5,
+    #                                                              num_epochs=20,
     #                                                              device=device)
-    # torch.save(bestweights, "bestweights.pt")
+    # torch.save(bestweights, "smoothl1_bestweights.pt")
     # print("Best epoch is: ", best_epoch)
 
     idx = randint(0, len(train_dataset)-1)
     draw_mesh(model, train_dataset, idx)
 
 if __name__ == "__main__":
-    BATCH_SIZE = 64
+    BATCH_SIZE = 128
     main()
